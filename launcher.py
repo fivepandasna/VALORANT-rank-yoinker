@@ -1,13 +1,13 @@
 # launcher.py
-import threading
+import os
+os.environ["PYTHONIOENCODING"] = "utf-8"import threading
 import time
 import sys
-import os
 import webview
 
 def run_backend():
     try:
-        import main  # noqa — importing runs it
+        import main
     except SystemExit:
         pass
     except Exception:
@@ -33,13 +33,13 @@ if __name__ == "__main__":
     wait_for_backend(timeout=30)
 
     if getattr(sys, 'frozen', False):
-        base = os.path.dirname(sys.executable)
+        base = sys._MEIPASS
     else:
         base = os.path.dirname(os.path.abspath(__file__))
 
     html_path = os.path.join(base, "vry-gui.html")
 
-window = webview.create_window(
+    window = webview.create_window(
         title="VALORANT rank yoinker",
         url=f"file:///{html_path}",
         width=1280,
@@ -49,17 +49,5 @@ window = webview.create_window(
         background_color='#0a0b0f',
     )
 
-def set_dark_titlebar():
-        import ctypes
-        import ctypes.wintypes
-        time.sleep(0.5)  # give the window time to appear
-        hwnd = ctypes.windll.user32.FindWindowW(None, "VALORANT rank yoinker")
-        DWMWA_USE_IMMERSIVE_DARK_MODE = 20
-        value = ctypes.c_int(1)
-        ctypes.windll.dwmapi.DwmSetWindowAttribute(
-            hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE,
-            ctypes.byref(value), ctypes.sizeof(value)
-        )
-
-webview.start(gui='edgechromium', func=set_dark_titlebar)
-os._exit(0)
+    webview.start(gui='edgechromium')
+    os._exit(0)
