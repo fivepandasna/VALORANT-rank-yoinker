@@ -1,6 +1,7 @@
 # launcher.py
 import os
-os.environ["PYTHONIOENCODING"] = "utf-8"import threading
+os.environ["PYTHONIOENCODING"] = "utf-8"
+import threading
 import time
 import sys
 import webview
