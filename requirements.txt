@@ -10,6 +10,7 @@ pfzy==0.3.4
 prompt-toolkit==3.0.36
 Pygments==2.15.1
 pypresence==4.3.0
+pywebview==5.3
 PyYAML==6.0.1
 requests==2.32.4
 rich==13.5.1
