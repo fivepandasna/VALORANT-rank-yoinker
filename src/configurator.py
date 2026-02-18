@@ -5,15 +5,17 @@ from InquirerPy import inquirer, prompt
 from InquirerPy.separator import Separator
 
 from src.constants import DEFAULT_CONFIG
-
 from src.questions import *
 
+CONFIG_PATH = os.path.join(os.getenv('APPDATA'), 'vry', 'config.json')
 
 def configure():
     default_config = DEFAULT_CONFIG
 
+    os.makedirs(os.path.dirname(CONFIG_PATH), exist_ok=True)
+
     try:
-        with open("config.json", "r") as openfile:
+        with open(CONFIG_PATH, "r") as openfile:
             user_config = default_config | json.load(openfile)
     except FileNotFoundError:
         print("Generating default configuration")
@@ -55,7 +57,7 @@ def configure():
         elif choice is menu_choices[5]:
             changed_config |= prompt(advance_questions(config=loop_config))
         elif choice is menu_choices[7]:
-            proceed=True
+            proceed = True
             break
         else:
             proceed = (not len(changed_config.keys()) > 0) or inquirer.confirm(
@@ -67,7 +69,7 @@ def configure():
 
     if proceed:
         config = default_config | user_config | changed_config
-        with open("config.json", "w") as outfile:
+        with open(CONFIG_PATH, "w") as outfile:
             json.dump(config, outfile, indent=4)
     else:
         config = default_config | user_config

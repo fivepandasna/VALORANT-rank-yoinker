@@ -1,12 +1,13 @@
 import json
 import logging
+import os
 from websocket_server import WebsocketServer
 
 from src.constants import version
 
 logging.getLogger('websocket_server.websocket_server').disabled = True
 
-# websocket.enableTrace(True)
+CONFIG_PATH = os.path.join(os.getenv('APPDATA'), 'vry', 'config.json')
 
 class Server:
     def __init__(self, log, Error):
@@ -16,22 +17,20 @@ class Server:
 
     def start_server(self):
         try:
-            # print(self.lastMessage)
-            with open("config.json", "r") as conf:
+            with open(CONFIG_PATH, "r") as conf:
                 port = json.load(conf)["port"]
             self.server = WebsocketServer(host="0.0.0.0", port=port)
-            # server = websocket.WebSocketApp("wss://localhost:1100", on_open=on_open, on_message=on_message, on_close=on_close)
             self.server.set_fn_new_client(self.handle_new_client)
             self.server.run_forever(threaded=True)
         except Exception as e:
             self.Error.PortError(port)
 
     def handle_new_client(self, client, server):
-        self.send_payload("version",{
+        self.send_payload("version", {
             "core": version
         })
         for key in self.lastMessages:
-            if key not in ["chat","version"]:
+            if key not in ["chat", "version"]:
                 self.send_message(self.lastMessages[key])
 
     def send_message(self, message):
