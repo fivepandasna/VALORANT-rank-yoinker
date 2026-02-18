@@ -4,14 +4,15 @@ os.environ["PYTHONIOENCODING"] = "utf-8"
 os.environ["PYTHONUTF8"] = "1"
 
 import sys
-import io
+
+VRY_APPDATA = os.path.join(os.getenv('APPDATA'), 'vry')
+os.makedirs(VRY_APPDATA, exist_ok=True)
 
 if getattr(sys, 'frozen', False):
-    # Redirect all output to a log file in frozen exe
-    log_file = open(os.path.join(os.path.dirname(sys.executable), 'output.log'), 'w', encoding='utf-8')
+    log_file = open(os.path.join(VRY_APPDATA, 'output.log'), 'w', encoding='utf-8')
     sys.stdout = log_file
     sys.stderr = log_file
-    
+
 import threading
 import time
 import webview
@@ -23,7 +24,7 @@ def run_backend():
         pass
     except Exception:
         import traceback
-        with open(os.path.join(os.getcwd(), "launcher_error.txt"), "w") as f:
+        with open(os.path.join(VRY_APPDATA, 'launcher_error.txt'), "w") as f:
             f.write(traceback.format_exc())
 
 def wait_for_backend(timeout=30):
