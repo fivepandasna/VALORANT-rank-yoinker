@@ -37,6 +37,8 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: dist/vRY.exe
+          body_path: .github/RELEASE_TEMPLATE.md
+          draft: true
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
