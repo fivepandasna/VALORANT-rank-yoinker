@@ -1,9 +1,19 @@
 # launcher.py
 import os
 os.environ["PYTHONIOENCODING"] = "utf-8"
+os.environ["PYTHONUTF8"] = "1"
+
+import sys
+import io
+
+if getattr(sys, 'frozen', False):
+    # Redirect all output to a log file in frozen exe
+    log_file = open(os.path.join(os.path.dirname(sys.executable), 'output.log'), 'w', encoding='utf-8')
+    sys.stdout = log_file
+    sys.stderr = log_file
+    
 import threading
 import time
-import sys
 import webview
 
 def run_backend():
