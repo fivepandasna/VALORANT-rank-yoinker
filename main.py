@@ -1054,12 +1054,15 @@ try:
                             )
                 already_played_with = []
         if cfg.cooldown == 0:
-            input("Press enter to fetch again...")
+            try:
+                input("Press enter to fetch again...")
+            except (EOFError, RuntimeError):
+                import time
+                time.sleep(5)
         else:
             # time.sleep(cfg.cooldown)
             pass
 except KeyboardInterrupt:
-    # lame implementation of fast ctrl+c exit
     os._exit(0)
 except:
     log(traceback.format_exc())
@@ -1070,5 +1073,9 @@ except:
             fore=(255, 0, 0),
         )
     )
-    input("press enter to exit...\n")
+    try:
+        input("press enter to exit...\n")
+    except (EOFError, RuntimeError):
+        import time
+        time.sleep(10)
     os._exit(1)
