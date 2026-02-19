@@ -387,8 +387,8 @@ function rankBlock(rankIdx, subLine, subClass) {
 // ── Card ──────────────────────────────────────────────────────────────────────
 function renderCard(p, idx) {
   const isSelf    = p.puuid === STATE.selfPuuid;
-  const team      = p.team || 'Blue';
-  const nameClass = isSelf ? 'self-color' : (team==='Blue' ? 'blue' : 'red');
+  const team      = p.team;
+  const nameClass = isSelf ? 'self-color' : (team==='Blue' ? 'blue' : team==='Red' ? 'red' : '');
 
   // Agent icon
   const agentImg  = STATE.agentImages[p.puuid] || p.agentImgLink;
