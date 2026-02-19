@@ -28,15 +28,17 @@ jobs:
 
       - name: Install PyInstaller
         run: pip install pyinstaller
-
+        
       - name: Build executable
         run: |
-          python -m PyInstaller --noconsole --onefile --name "vRY-${{ github.ref_name }}" --add-data "vry-gui.html;." --add-data "assets;assets" --add-data "src;src" --icon=assets/Logo.ico --collect-all webview --collect-all websocket_server launcher.py
-
+          python -m PyInstaller --noconsole --onedir --name "vRY" --add-data "vry-gui.html;." --add-data "assets;assets" --add-data "src;src" --icon=assets/Logo.ico --collect-all webview --collect-all websocket_server launcher.py
+      - name: Compile Inno Setup installer
+        run: |
+          iscc installer.iss
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          files: dist/vRY-${{ github.ref_name }}.exe
+          files: dist/vRY-${{ github.ref_name }}-setup.exe
           body_path: .github/RELEASE_TEMPLATE.md
           draft: true
           generate_release_notes: true
