@@ -229,8 +229,7 @@
   }
 
   .hs-value { font-family:'Share Tech Mono',monospace; font-size:15px; font-weight:600; line-height:1; }
-  .hs-bar { width:50px; height:2px; background:var(--border); border-radius:1px; overflow:hidden; margin-top: 3px; }
-  .hs-bar-fill { height:100%; border-radius:1px; transition:width .6s ease; }
+
 
   .wr-value { font-family:'Share Tech Mono',monospace; font-size:15px; font-weight:700; color:var(--text-muted); line-height:1; }
   .kd-value { font-family:'Share Tech Mono',monospace; font-size:15px; font-weight:700; line-height:1; }
@@ -413,7 +412,6 @@ function renderCard(p, idx) {
   // HS
   const hsNum = parseInt(p.headshotPercentage);
   const hsClr = hsColor(p.headshotPercentage);
-  const hsBar = isNaN(hsNum) ? 0 : Math.min(hsNum * 2, 100);
 
   // Win Rate — strip bracketed game count e.g. "54 (120)" -> "54"
   const wrRaw = p.winPercentage !== undefined ? String(p.winPercentage) : 'N/A';
@@ -450,7 +448,6 @@ function renderCard(p, idx) {
         <div class="cell-label">HS%</div>
         <div class="stat-value-row">
           <div class="hs-value" style="color:${hsClr}">${isNaN(hsNum)?'N/A':hsNum+'%'}</div>
-          <div class="hs-bar"><div class="hs-bar-fill" style="width:${hsBar}%;background:${hsClr}"></div></div>
         </div>
       </div>
 
