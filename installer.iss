@@ -17,6 +17,9 @@ SetupIconFile=assets\Logo.ico
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
+WizardResizable=yes
+WizardSizePercent=100
+WizardTheme=auto
 
 [Files]
 Source: "dist\vry\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
