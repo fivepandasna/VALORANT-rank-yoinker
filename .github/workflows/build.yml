@@ -31,14 +31,18 @@ jobs:
         
       - name: Build executable
         run: |
-          python -m PyInstaller --noconsole --onedir --name "vRY" --add-data "vry-gui.html;." --add-data "assets;assets" --add-data "src;src" --icon=assets/Logo.ico --collect-all webview --collect-all websocket_server launcher.py
+          python -m PyInstaller --noconsole --onedir --name "vry" --add-data "vry-gui.html;." --add-data "assets;assets" --add-data "src;src" --icon=assets/Logo.ico --collect-all webview --collect-all websocket_server launcher.py
       - name: Compile Inno Setup installer
         run: |
           iscc installer.iss
+      - name: Zip portable build
+        run: Compress-Archive -Path dist\vry\* -DestinationPath dist\vry-${{ github.ref_name }}-portable.zip
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          files: dist/vRY-${{ github.ref_name }}-setup.exe
+          files: |
+            dist/vry-${{ github.ref_name }}-setup.exe
+            dist/vry-${{ github.ref_name }}-portable.zip
           body_path: .github/RELEASE_TEMPLATE.md
           draft: true
           generate_release_notes: true
