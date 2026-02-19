@@ -28,15 +28,22 @@ jobs:
 
       - name: Install PyInstaller
         run: pip install pyinstaller
-        
+
+      - name: Install Inno Setup
+        run: choco install innosetup --yes
+
       - name: Build executable
         run: |
           python -m PyInstaller --noconsole --onedir --name "vry" --add-data "vry-gui.html;." --add-data "assets;assets" --add-data "src;src" --icon=assets/Logo.ico --collect-all webview --collect-all websocket_server launcher.py
+
       - name: Compile Inno Setup installer
-        run: |
-          iscc installer.iss
+        run: iscc installer.iss
+        env:
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+
       - name: Zip portable build
         run: Compress-Archive -Path dist\vry\* -DestinationPath dist\vry-${{ github.ref_name }}-portable.zip
+
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
