@@ -616,7 +616,7 @@ function connect() {
 
   ws.onopen  = () => { setConnected(true); reconnectDelay=2000; clearTimeout(reconnectTimer); };
   ws.onclose = () => { setConnected(false); schedule(); };
-  ws.onerror = () => { setConnected(false); ws.close(); };
+  ws.onerror = () => { ws.close(); };
   ws.onmessage = evt => {
     try {
       const msg = JSON.parse(evt.data);
