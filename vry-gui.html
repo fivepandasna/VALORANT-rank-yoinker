@@ -569,6 +569,13 @@ function handleHeartbeat(data) {
   STATE.selfPuuid = data.puuid;
   STATE.map       = data.map;
 
+  const incomingPuuids = Object.keys(data.players || {});
+  const playersChanged = incomingPuuids.length !== Object.keys(STATE.players).length ||
+    incomingPuuids.some(id => !STATE.players[id]);
+
+  // New match detected — flush stale agent image cache
+  if (playersChanged) STATE.agentImages = {};
+
   const next = {};
   Object.entries(data.players || {}).forEach(([puuid, p]) => {
     const prev = STATE.players[puuid] || {};
@@ -586,7 +593,8 @@ function handleHeartbeat(data) {
       kd:                 p.kd,
       level:              p.level,
       partyNumber:        p.partyNumber || 0,
-      agentImgLink:       p.agentImgLink || prev.agentImgLink,
+      // Only inherit agentImgLink within the same match
+      agentImgLink: playersChanged ? (p.agentImgLink || null) : (p.agentImgLink || prev.agentImgLink),
     };
   });
   STATE.players = next;
