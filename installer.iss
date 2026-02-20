@@ -3,6 +3,7 @@
 #define MyAppExeName "vry.exe"
 
 [Setup]
+AppId={{217f0fa8-4152-43b2-9326-2b0428940dc0}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher=Ashaan Dalgliesh
