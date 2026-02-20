@@ -16,10 +16,9 @@ OutputBaseFilename=vry-{#MyAppVersion}-setup
 SetupIconFile=assets\Logo.ico
 Compression=lzma
 SolidCompression=yes
-WizardStyle=modern
+WizardStyle=modern dynamic windows11 includetitlebar
 WizardResizable=yes
 WizardSizePercent=100
-WizardTheme=auto
 
 [Files]
 Source: "dist\vry\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
