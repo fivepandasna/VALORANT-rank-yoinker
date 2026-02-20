@@ -388,7 +388,8 @@ function rankBlock(rankIdx, subLine, subClass) {
 function renderCard(p, idx) {
   const isSelf    = p.puuid === STATE.selfPuuid;
   const team      = p.team;
-  const nameClass = isSelf ? 'self-color' : (team==='Blue' ? 'blue' : team==='Red' ? 'red' : '');
+  const isAlly    = team && STATE.selfTeam && team === STATE.selfTeam;
+  const nameClass = isSelf ? 'self-color' : (team ? (isAlly ? 'blue' : 'red') : '');
 
   // Agent icon
   const agentImg  = STATE.agentImages[p.puuid] || p.agentImgLink;
@@ -466,8 +467,9 @@ function renderCard(p, idx) {
 
 function renderTeam(players, teamId) {
   if (!players.length) return '';
-  const cls   = teamId==='Blue'?'blue':'red';
-  const label = teamId==='Blue'?'Attack':'Defense';
+  const isAlly = teamId === STATE.selfTeam;
+  const cls    = isAlly ? 'blue' : 'red';
+  const label  = teamId === 'Blue' ? 'Attack' : 'Defense';
   return `
     <div class="team-section">
       <div class="team-label ${cls}">${label}</div>
@@ -494,6 +496,7 @@ const STATE = {
   gameState:   null,
   players:     {},
   selfPuuid:   null,
+  selfTeam:    null,
   map:         null,
   agentImages: {},
   agentNames:  {},
@@ -568,6 +571,7 @@ function handleHeartbeat(data) {
   STATE.gameState = data.state;
   STATE.selfPuuid = data.puuid;
   STATE.map       = data.map;
+  STATE.selfTeam  = data.players?.[data.puuid]?.team || null;
 
   const next = {};
   Object.entries(data.players || {}).forEach(([puuid, p]) => {
