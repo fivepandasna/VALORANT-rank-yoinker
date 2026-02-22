@@ -42,8 +42,6 @@ if __name__ == "__main__":
     backend_thread = threading.Thread(target=run_backend, daemon=True)
     backend_thread.start()
 
-    wait_for_backend(timeout=30)
-
     if getattr(sys, 'frozen', False):
         base = sys._MEIPASS
     else:

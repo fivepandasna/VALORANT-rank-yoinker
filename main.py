@@ -256,6 +256,9 @@ try:
             
             # Temp fix: Riot is swapping between nested and flat API structures.
             party_state = ""
+            if priv_presence is None:
+                time.sleep(2)
+                continue
             if "partyPresenceData" in priv_presence: # Check for nested structure
                 party_state = priv_presence["partyPresenceData"]["partyState"]
             elif "partyState" in priv_presence: # Check for flattened structure
