@@ -5,9 +5,20 @@ import time
 LOGS_DIR = os.path.join(os.getenv('APPDATA'), 'vry', 'logs')
 
 class Logging:
+    MAX_LOGS = 10
+
     def __init__(self):
         self.logFileOpened = False
         os.makedirs(LOGS_DIR, exist_ok=True)
+        self._cleanup_old_logs()
+
+    def _cleanup_old_logs(self):
+        log_files = sorted(glob.glob(os.path.join(LOGS_DIR, "log-*.txt")), key=lambda f: int(os.path.basename(f)[4:-4]))
+        for old_file in log_files[:-self.MAX_LOGS]:
+            try:
+                os.remove(old_file)
+            except OSError:
+                pass
 
     def log(self, log_string: str):
         log_files = glob.glob(os.path.join(LOGS_DIR, "log-*.txt"))
