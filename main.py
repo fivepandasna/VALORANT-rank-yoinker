@@ -40,8 +40,6 @@ from src.account_manager.account_auth import AccountAuth
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-os.system(f"title VALORANT rank yoinker v{version}")
-
 server = ""
 
 
@@ -77,12 +75,8 @@ try:
             run_app = inquirer.confirm(
                 message="Do you want to run vRY now?", default=True
             ).execute()
-            if run_app:
-                os.system("cls")
-            else:
+            if not run_app:
                 os._exit(0)
-        else:
-            os.system("cls")
     except Exception as e:
         print("Something went wrong while running configurator!")
         log(f"configurator encountered an error")

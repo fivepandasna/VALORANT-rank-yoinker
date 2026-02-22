@@ -65,8 +65,6 @@ def configure():
             ).execute()
             break
 
-        os.system('cls')
-
     if proceed:
         config = default_config | user_config | changed_config
         with open(CONFIG_PATH, "w") as outfile:
