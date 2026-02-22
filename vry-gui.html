@@ -530,9 +530,13 @@ function render() {
   let html = renderHeaders();
 
   if (blue.length && red.length) {
-    html += renderTeam(blue, 'Blue');
+    const firstTeam  = STATE.selfTeam === 'Red' ? red  : blue;
+    const secondTeam = STATE.selfTeam === 'Red' ? blue : red;
+    const firstId    = STATE.selfTeam === 'Red' ? 'Red' : 'Blue';
+    const secondId   = STATE.selfTeam === 'Red' ? 'Blue' : 'Red';
+    html += renderTeam(firstTeam, firstId);
     html += `<div class="team-divider"></div>`;
-    html += renderTeam(red, 'Red');
+    html += renderTeam(secondTeam, secondId);
   } else if (other.length) {
     html += `<div class="team-section">
       <div class="team-label blue">Your Party / Allies</div>
