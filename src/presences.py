@@ -32,32 +32,28 @@ class Presences:
     def get_private_presence(self, presences):
         for presence in presences:
             if presence['puuid'] == self.Requests.puuid:
-                #preventing vry from crashing when lol is open
-                # print(presence)
-                # print(presence.get("championId"))
                 if presence.get("championId") is not None or presence.get("product") == "league_of_legends":
                     return None
                 else:
                     if not presence['private']:
                         return None
                     decoded_private = json.loads(base64.b64decode(presence['private']))
-                    # Debug
-                    # self.log(f"DEBUG: Decoded Private Presence -> {decoded_private}")
                     return decoded_private
         return None
 
     def decode_presence(self, private):
-        # try:
-        if "{" not in str(private) and private is not None and str(private) != "":
-            dict = json.loads(base64.b64decode(str(private)).decode("utf-8"))
-            if dict.get("isValid"):
-                return dict
-        return {
-            "isValid": False,
-            "partyId": 0,
-            "partySize": 0,
-            "partyVersion": 0,
-        }
+        if private is None or str(private) == "":
+            return {"isValid": False, "partyId": 0, "partySize": 0, "partyVersion": 0}
+        # Already a decoded dict
+        if isinstance(private, dict):
+            return private if private.get("isValid") else {"isValid": False, "partyId": 0, "partySize": 0, "partyVersion": 0}
+        try:
+            decoded = json.loads(base64.b64decode(str(private)).decode("utf-8"))
+            if decoded.get("isValid"):
+                return decoded
+        except Exception:
+            pass
+        return {"isValid": False, "partyId": 0, "partySize": 0, "partyVersion": 0}
 
     def wait_for_presence(self, PlayersPuuids):
         while True:
