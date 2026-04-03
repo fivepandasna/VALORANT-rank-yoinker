@@ -3,7 +3,7 @@ import json
 import time
 from json.decoder import JSONDecodeError
 import requests
-from colr import color
+from src.colors import color
 import os
 import shutil
 import sys
@@ -209,7 +209,6 @@ class Requests:
                 if 'CI server version:' in line:
                     version_without_shipping = line.split('CI server version: ')[1].strip()
                     version = version_without_shipping.split("-")
-                    version.insert(2, "shipping")
                     version = "-".join(version)
                     self.log(f"got version from logs '{version}'")
                     return version
