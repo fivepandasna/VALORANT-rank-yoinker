@@ -7,7 +7,6 @@ import json
 
 class Loadouts:
     def __init__(self, Requests, log, colors, Server, current_map):
-
         self.Requests = Requests
         self.log = log
         self.colors = colors
@@ -17,16 +16,14 @@ class Loadouts:
     def get_match_loadouts(self, match_id, players, weaponChoose, valoApiSkins, names, state="game"):
         playersBackup = players
         weaponLists = {}
-        valApiWeapons = requests.get(
-            "https://valorant-api.com/v1/weapons").json()
+        valApiWeapons = requests.get("https://valorant-api.com/v1/weapons").json()
+
         if state == "game":
-            team_id = "Blue"
             PlayerInventorys = self.Requests.fetch(
                 "glz", f"/core-game/v1/matches/{match_id}/loadouts", "get")
         elif state == "pregame":
             pregame_stats = players
             players = players["AllyTeam"]["Players"]
-            team_id = pregame_stats['Teams'][0]['TeamID']
             PlayerInventorys = self.Requests.fetch(
                 "glz", f"/pregame/v1/matches/{match_id}/loadouts", "get")
 
@@ -34,7 +31,6 @@ class Loadouts:
         loadout_by_subject = {}
         for loadout_entry in PlayerInventorys["Loadouts"]:
             subj = loadout_entry.get("Subject", "").lower()
-            # if player has an agent != spectator
             char_id = loadout_entry.get("CharacterID", "")
             if subj and char_id:
                 loadout_by_subject[subj] = loadout_entry["Loadout"] if state == "game" else loadout_entry
@@ -46,9 +42,7 @@ class Loadouts:
                 continue
             for weapon in valApiWeapons["data"]:
                 if weapon["displayName"].lower() == weaponChoose.lower():
-                    skin_id = \
-                        inv["Items"][weapon["uuid"].lower()]["Sockets"]["bcef87d6-209b-46c6-8b19-fbe40bd95abc"]["Item"][
-                            "ID"]
+                    skin_id = inv["Items"][weapon["uuid"].lower()]["Sockets"]["bcef87d6-209b-46c6-8b19-fbe40bd95abc"]["Item"]["ID"]
                     json_data = valoApiSkins.json()
 
                     if "data" not in json_data:
@@ -63,61 +57,40 @@ class Loadouts:
                                 f" {weapon['displayName']}", "")
                             weaponLists.update({player["Subject"]: color(
                                 skin_display_name, fore=rgb_color)})
-        final_json = self.convertLoadoutToJsonArray(
-            PlayerInventorys, playersBackup, state, names)
+
+        final_json = self.convertLoadoutToJsonArray(PlayerInventorys, playersBackup, state)
         self.Server.send_payload("matchLoadout", final_json)
         return [weaponLists, final_json]
 
-    # this will convert valorant loadouts to json with player names
-    def convertLoadoutToJsonArray(self, PlayerInventorys, players, state, names):
-        valoApiAgents = requests.get("https://valorant-api.com/v1/agents")
-
-        final_final_json = {"Players": {},
-                            "time": int(time.time()),
-                            "map": self.current_map}
-
+    def convertLoadoutToJsonArray(self, PlayerInventorys, players, state):
+        final_final_json = {
+            "Players": {},
+            "time": int(time.time()),
+            "map": self.current_map
+        }
         final_json = final_final_json["Players"]
-        if state == "game":
-            PlayerInventorys = PlayerInventorys["Loadouts"]
 
-            # subject (player UUID) -> loadout lookup
+        if state == "game":
             loadout_by_subject = {}
-            for entry in PlayerInventorys:
+            for entry in PlayerInventorys["Loadouts"]:
                 subj = entry.get("Subject", "").lower()
-                # if player has an agent != spectator
                 char_id = entry.get("CharacterID", "")
                 if subj and char_id:
-                    loadout_by_subject[subj] = entry["Loadout"]
+                    loadout_by_subject[subj] = entry
 
-            # Parse once, build a uuid->agent dict for O(1) lookups
-            agents_by_uuid = {a["uuid"]: a for a in valoApiAgents.json()["data"]}
+            agents_by_uuid = {
+                a["uuid"]: a
+                for a in requests.get("https://valorant-api.com/v1/agents").json()["data"]
+            }
 
             for player in players:
-                subject = player["Subject"]
-                subj = subject.lower()
-                loadout_entry = loadout_by_subject.get(subj)
-
-                final_json[subject] = {}
-
-                # skip if not found
-                if loadout_entry is None:
+                puuid = player["Subject"]
+                entry = loadout_by_subject.get(puuid.lower())
+                if not entry:
                     continue
-
                 agent = agents_by_uuid.get(player["CharacterID"])
-
-                # creates name field
-                if hide_names:
-                    if agent:
-                        final_json[subject]["Name"] = agent["displayName"]
-                else:
-                    final_json[subject]["Name"] = names[subject]
-
-                # creates team field
-                final_json[subject]["Team"] = player["TeamID"]
-                final_json[subject]["Level"] = player["PlayerIdentity"]["AccountLevel"]
-
-                if agent:
-                    final_json[subject]["AgentArtworkName"] = agent["displayName"] + "Artwork"
-                    final_json[subject]["Agent"] = agent["displayIcon"]
+                final_json[puuid] = {
+                    "Agent": agent["displayIcon"] if agent else None
+                }
 
         return final_final_json
