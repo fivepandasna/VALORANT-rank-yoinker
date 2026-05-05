@@ -660,18 +660,6 @@ try:
                             "team": loadouts_data["Players"][player["Subject"]].get(
                                 "Team", None
                             ),
-                            "sprays": loadouts_data["Players"][player["Subject"]].get(
-                                "Sprays", None
-                            ),
-                            "title": loadouts_data["Players"][player["Subject"]].get(
-                                "Title", None
-                            ),
-                            "playerCard": loadouts_data["Players"][
-                                player["Subject"]
-                            ].get("PlayerCard", None),
-                            "weapons": loadouts_data["Players"][player["Subject"]].get(
-                                "Weapons", None
-                            ),
                         }
 
                         stats.save_data(
