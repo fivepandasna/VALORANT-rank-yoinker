@@ -1,5 +1,7 @@
 #define MyAppName "vry"
-#define MyAppVersion GetEnv("GITHUB_REF_NAME")
+#ifndef MyAppVersion
+  #define MyAppVersion "0.0.0"
+#endif
 #define MyAppExeName "vry.exe"
 
 [Setup]
