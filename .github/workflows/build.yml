@@ -1,8 +1,6 @@
 name: Build
-
 env:
   PYTHON_VERSION: '3.11'
-
 on:
   push:
     tags:
@@ -12,49 +10,43 @@ on:
       ref_name:
         description: 'Version/tag name (e.g. v1.0.0)'
         required: true
-
 jobs:
   build:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Set up Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
           cache-dependency-path: 'requirements.txt'
-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-
       - name: Install PyInstaller
         run: pip install pyinstaller
-
       - name: Install Inno Setup
         run: choco install innosetup --yes
-
       - name: Build executable
         run: |
           python -m PyInstaller --noconsole --onedir --name "vry" --add-data "vry-gui.html;." --add-data "assets;assets" --add-data "src;src" --icon=assets/Logo.ico --collect-all webview --collect-all websocket_server launcher.py
-
+      - name: Resolve version
+        id: version
+        run: |
+          $ver = if ("${{ github.event.inputs.ref_name }}" -ne "") { "${{ github.event.inputs.ref_name }}" } else { "${{ github.ref_name }}" }
+          echo "tag=$ver" >> $env:GITHUB_OUTPUT
       - name: Compile Inno Setup installer
-        run: iscc installer.iss
-        env:
-          GITHUB_REF_NAME: ${{ github.event.inputs.ref_name || github.ref_name }}
-
+        run: iscc installer.iss /DMyAppVersion=${{ steps.version.outputs.tag }}
       - name: Zip portable build
-        run: Compress-Archive -Path dist\vry\* -DestinationPath dist\vry-${{ github.event.inputs.ref_name || github.ref_name }}-portable.zip
-
+        run: Compress-Archive -Path dist\vry\* -DestinationPath dist\vry-${{ steps.version.outputs.tag }}-portable.zip
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            dist/vry-${{ github.event.inputs.ref_name || github.ref_name }}-setup.exe
-            dist/vry-${{ github.event.inputs.ref_name || github.ref_name }}-portable.zip
+            dist/vry-${{ steps.version.outputs.tag }}-setup.exe
+            dist/vry-${{ steps.version.outputs.tag }}-portable.zip
           body_path: .github/RELEASE_TEMPLATE.md
           draft: true
           generate_release_notes: true
