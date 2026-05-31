@@ -7,6 +7,11 @@ on:
   push:
     tags:
       - '*'
+  workflow_dispatch:
+    inputs:
+      ref_name:
+        description: 'Version/tag name (e.g. v1.0.0)'
+        required: true
 
 jobs:
   build:
@@ -39,17 +44,17 @@ jobs:
       - name: Compile Inno Setup installer
         run: iscc installer.iss
         env:
-          GITHUB_REF_NAME: ${{ github.ref_name }}
+          GITHUB_REF_NAME: ${{ github.event.inputs.ref_name || github.ref_name }}
 
       - name: Zip portable build
-        run: Compress-Archive -Path dist\vry\* -DestinationPath dist\vry-${{ github.ref_name }}-portable.zip
+        run: Compress-Archive -Path dist\vry\* -DestinationPath dist\vry-${{ github.event.inputs.ref_name || github.ref_name }}-portable.zip
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            dist/vry-${{ github.ref_name }}-setup.exe
-            dist/vry-${{ github.ref_name }}-portable.zip
+            dist/vry-${{ github.event.inputs.ref_name || github.ref_name }}-setup.exe
+            dist/vry-${{ github.event.inputs.ref_name || github.ref_name }}-portable.zip
           body_path: .github/RELEASE_TEMPLATE.md
           draft: true
           generate_release_notes: true
