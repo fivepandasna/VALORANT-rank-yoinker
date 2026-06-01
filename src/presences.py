@@ -42,18 +42,16 @@ class Presences:
         return None
 
     def decode_presence(self, private):
-        if private is None or str(private) == "":
-            return {"isValid": False, "partyId": 0, "partySize": 0, "partyVersion": 0}
-        # Already a decoded dict
-        if isinstance(private, dict):
-            return private if private.get("isValid") else {"isValid": False, "partyId": 0, "partySize": 0, "partyVersion": 0}
-        try:
-            decoded = json.loads(base64.b64decode(str(private)).decode("utf-8"))
-            if decoded.get("isValid"):
-                return decoded
-        except Exception:
-            pass
-        return {"isValid": False, "partyId": 0, "partySize": 0, "partyVersion": 0}
+        if "{" not in str(private) and private is not None and str(private) != "":
+            decoded_party_presence = json.loads(base64.b64decode(str(private)).decode("utf-8"))
+            if isinstance(decoded_party_presence, dict) and decoded_party_presence.get('isValid'):
+                return decoded_party_presence
+        return {
+            "isValid": False,
+            "partyId": 0,
+            "partySize": 0,
+            "partyVersion": 0,
+        }
 
     def wait_for_presence(self, PlayersPuuids):
         while True:
