@@ -2,23 +2,22 @@
     <a href="https://github.com/isaacKenyon/valorant-rank-yoinker/">
         <img src="assets/Logo.png" alt="Logo" width="160" height="160">
     </a>
-<h5 align="center"> VALORANT rank yoinker</h5>
+<h5 align="center"> VALORANT rank yoinker GUI</h5>
 
-[![Discord][discord-shield]][discord-url]
 [![Downloads][downloads-shield]][downloads-url]
 
-> [!CAUTION]
-> vRY has published its final release, no changes will be made to the code.
-> 
-> [Community forks](COMMUNITY.md) may be maintained.
+> [!NOTE]
+> This is a personal/community fork of [VALORANT rank yoinker](https://github.com/isaacKenyon/valorant-rank-yoinker/) by isaacKenyon, adding a graphical user interface built with Microsoft Edge WebView2. The original project is in maintenance mode and won't receive any new updates.
+>
+> For issues specific to this fork, please [open a GitHub Issue](https://github.com/fivepandasna/VALORANT-rank-yoinker/issues).
 
 ---
 
   <ol>
     <li><a href="#about-the-project">About The Project</a></li>
+    <li><a href="#prerequisites">Prerequisites</a></li>
     <li><a href="#usage">Usage</a></li>
     <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#contact">Contact</a></li>
     <li><a href="#acknowledgements">Acknowledgements</a></li>
     <li><a href="#disclaimer">Disclaimer</a></li>
   </ol>
@@ -26,86 +25,77 @@
 
 ## About The Project
 
-![Screenshot](assets/Example.png)
-![Skin Showcase Image](assets/SkinShowcase.png)
+VALORANT rank yoinker GUI is a fork of the original vRY that replaces the terminal with a full graphical interface powered by Microsoft Edge WebView2. All the same rank, skin, and account information is displayed, only now in a proper window.
 
-|Current Skin|Current Rank|Rank Rating|Peak Rank|Account Level|
-|:---:|:---:|:---:|:---:|:---:|
-|![Skin](assets/Skin.png)|![Rank](assets/Rank.png)|![Rating](assets/Rating.png)|![Peak](assets/PeakRank.png)|![Level](assets/Level.png)|
+![Screenshot](assets/Example1.png)
+![Screenshot](assets/Example2.png)
 
+## Prerequisites
+
+- **Microsoft Edge WebView2 Runtime** — required for the GUI to function.
+  - Already included on **Windows 11**.
+  - **Windows 10** users can download it from [Microsoft's website](https://developer.microsoft.com/en-us/microsoft-edge/webview2/).
+- **Microsoft Visual C++ Libraries** — download from [here](https://github.com/abbodi1406/vcredist/releases).
 
 ## Usage
-**VALORANT must be open**.
 
 ### Bundled Release:
 
-1) Download [Microsoft Visual C++ Libraries](https://github.com/abbodi1406/vcredist/releases)
-2) Download the [release](https://github.com/isaacKenyon/valorant-rank-yoinker/releases/latest).
-3) Extract **all** files.
-4) Run vRY.exe.
+1) Install the [prerequisites](#prerequisites) above if needed.
+2) Download the [latest release](https://github.com/fivepandasna/VALORANT-rank-yoinker/releases/latest).
+3) Run vry-{version}-setup.exe and install
+4) Run vry from your search bar or desktop
 
 ### Running from source:
 
-1) Download Python [3.11](https://www.python.org/downloads/release/python-3119/) or [3.10](https://www.python.org/downloads/release/python-31011/), make sure it is added to the PATH. (This is an option on installation.)
-2) Download the [source](https://github.com/isaacKenyon/VALORANT-rank-yoinker/archive/refs/heads/main.zip).
-3) Run **`INSTALL.bat`** file (or use `pip install -r requirements.txt` in the terminal)
-4) Run **`START.bat`** file (or use `python main.py` in the terminal)
+1) Download Python [3.11](https://www.python.org/downloads/release/python-3119/) or [3.10](https://www.python.org/downloads/release/python-31011/), making sure it is added to PATH.
+2) Download the [source](https://github.com/fivepandasna/archive/refs/heads/main.zip).
+3) Run **`INSTALL.bat`** (or `pip install -r requirements.txt` in a terminal).
 
 ### Compiling from source:
 
 1) `pip install cx_Freeze`
 2) `python setup.py build`
-3)  Open the new Build folder and find vRY.exe.
+3) Open the new Build folder and find `vRY.exe`.
 
-> `-` You can change the desired weapon by editing the gun in `config.json`, or by deleting the file for vRY re-prompt you.
 
-> `-` View all skins: <https://vry.netlify.app/matchLoadouts>.
+### Letting GitHub Build It:
 
-### Letting Github Build It:
+The latest tags to `main` are built automatically via [GitHub Actions](https://github.com/fivepandasna/actions). A successful build produces a compiled artifact you can download directly from the [Actions tab](https://github.com/fivepandasna/actions) — click the `Build` workflow, select a run, and grab the artifact.
 
-The latest commits to the `main` branch will be built by a [Github Actions](https://github.com/isaacKenyon/VALORANT-rank-yoinker/actions) workflow
-and a successful build should result in a compiled artifact that you can download and try out.
-See the [Actions tab](https://github.com/isaacKenyon/VALORANT-rank-yoinker/actions), click on the `Build` workflow,
-select a particular workflow run, and it should have an artifact available for download.
+To make and test your own changes:
 
-If you want to make a small change to the application, you can:
-1) [Fork](https://github.com/isaacKenyon/VALORANT-rank-yoinker/fork) this project.
-2) Change the code in your forked repository.
-3) Let the Github Actions workflow build vRY.exe for you.
-4) Download it and test it.
-5) Submit a Pull Request if you would like your change included in future releases.
+1) [Fork](https://github.com/fivepandasna/fork) this repository.
+2) Make your changes.
+3) GitHub Actions will build `vRY.exe` for you. (Manually run)
+4) Download and test it.
+5) Open a Pull Request if you'd like your change merged.
+
 
 ## What about that Tweet?
 
-The [Tweet](https://twitter.com/PlayVALORANT/status/1539728676815642624), which details Riot's API policies, outlines how
-applications are not allowed to expose data hidden by the game client. As of Version 1.262, vRY respects streamer mode.
+The [Tweet](https://twitter.com/PlayVALORANT/status/1539728676815642624) outlines Riot's API policies. Applications are not allowed to expose data hidden by the game client. As of Version 1.262 of the original vRY, streamer mode is respected. This fork maintains that behaviour.
+
 
 ## Contributing
 
-Any contributions you make are **greatly appreciated**.
+Contributions are **greatly appreciated**. Please open an issue first to discuss what you'd like to change.
 
-## Contact
-
-Join the community discord:
-
-[![Discord Banner 2][discord-banner]][discord-url]
 
 ## Acknowledgements
 
+- [isaacKenyon](https://github.com/isaacKenyon) — original VALORANT rank yoinker
 - [Valorant-API.com](https://valorant-api.com/)
 - [Hamper](https://hamper.dev/)
 - [D3CRYPT](https://d3crypt360.pages.dev/)
+
 
 ## Disclaimer
 
 THIS PROJECT IS NOT ASSOCIATED OR ENDORSED BY RIOT GAMES. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc.
 
-Whilst effort has been made to abide by Riot's API rules; you acknowledge that use of this software is done so at your own risk.
+Whilst effort has been made to abide by Riot's API rules, you acknowledge that use of this software is done so at your own risk.
 
 
-[discord-shield]: https://img.shields.io/discord/872101595037446144?color=7289da&label=Support&logo=discord&logoColor=7289da&style=for-the-badge
-[discord-url]: https://discord.gg/HeTKed64Ka
-[discord-banner]: https://discordapp.com/api/guilds/872101595037446144/widget.png?style=banner2
-
-[downloads-shield]: https://img.shields.io/github/downloads/zayKenyon/VALORANT-rank-yoinker/total?style=for-the-badge&logo=github
-[downloads-url]: https://github.com/zayKenyon/VALORANT-rank-yoinker/releases/latest
+[downloads-shield]: https://img.shields.io/github/downloads/fivepandasna/VALORANT-rank-yoinker/total?style=for-the-badge&logo=github
+[downloads-url]: https://github.com/fivepandasna/releases/latest
