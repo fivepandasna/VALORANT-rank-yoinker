@@ -122,7 +122,7 @@ class Table:
         # empty_row = [""] * sum(self.col_flags)
         # self.rich_table.add_row(*empty_row)
         self.rows.append(
-            zip(self.field_names_candidates, "" * len(self.field_names_candidates))
+            zip(self.field_names_candidates, [""] * len(self.field_names_candidates))
         )
 
     def apply_rows(self):
