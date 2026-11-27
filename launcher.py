@@ -47,5 +47,6 @@ if __name__ == "__main__":
         background_color="#0a0b0f",
     )
 
-    webview.start(gui="edgechromium")
+    # private_mode=False so localStorage (rank icon cache) survives restarts
+    webview.start(gui="edgechromium", private_mode=False, storage_path=os.path.join(VRY_APPDATA, "webview"))
     os._exit(0)
