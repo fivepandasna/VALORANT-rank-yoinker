@@ -246,7 +246,6 @@
   /* Empty state */
   .empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:360px; gap:18px; animation:fade-in .5s ease; }
   @keyframes fade-in { from{opacity:0} to{opacity:1} }
-  .empty-icon { width:56px; height:56px; opacity:.18; }
   .empty-title { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:22px; letter-spacing:.1em; color:var(--text-dim); text-transform:uppercase; }
   .empty-sub { font-size:13px; color:var(--text-dim); text-align:center; font-family:'Share Tech Mono',monospace; line-height:1.7; }
   .ws-url { color:var(--accent); }
@@ -489,6 +488,8 @@ function renderHeaders() {
 }
 
 // ── App state ─────────────────────────────────────────────────────────────────
+let CONN = 'connecting';        // 'connecting' | 'connected' | 'disconnected'
+
 const STATE = {
   gameState:   null,
   players:     {},
@@ -503,17 +504,20 @@ function render() {
   const list = Object.values(STATE.players);
 
   if (!STATE.gameState || !list.length) {
+    const EMPTY = {
+      connecting:   { title:'Connecting',
+                      sub:'Connecting to vRY on <span class="ws-url">ws://127.0.0.1:1100</span>', dots:true },
+      disconnected: { title:"Can't reach vRY",
+                      sub:'Retrying <span class="ws-url">ws://127.0.0.1:1100</span><br>Make sure the vRY backend is running.', dots:true },
+      connected:    { title:'Awaiting Match',
+                      sub:'Connected to vRY.<br>Launch VALORANT and your lobby will appear here.', dots:false },
+    }[CONN];
     app.innerHTML = `
       <div class="empty-state">
-        <svg class="empty-icon" viewBox="0 0 64 64" fill="none">
-          <rect x="8" y="8" width="48" height="48" rx="4" stroke="#5a607a" stroke-width="2"/>
-          <path d="M24 32h16M32 24v16" stroke="#5a607a" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        <div class="empty-title">Awaiting Match</div>
+        <div class="empty-title">${EMPTY.title}</div>
         <div class="empty-sub">
-          Connecting to vRY on <span class="ws-url">ws://127.0.0.1:1100</span><br>
-          Make sure VALORANT is running.
-          <div class="connecting"><span></span><span></span><span></span></div>
+          ${EMPTY.sub}
+          ${EMPTY.dots ? '<div class="connecting"><span></span><span></span><span></span></div>' : ''}
         </div>
       </div>`;
     return;
@@ -562,9 +566,11 @@ function updateHeader(gs) {
 }
 
 function setConnected(ok) {
+  CONN = ok ? 'connected' : 'disconnected';
   document.getElementById('statusDot').className   = 'status-dot '+(ok?'connected':'error');
   document.getElementById('statusLabel').className = 'status-label '+(ok?'connected':'disconnected');
   document.getElementById('statusText').textContent = ok?'CONNECTED':'DISCONNECTED';
+  render();
 }
 
 // ── WebSocket handlers ────────────────────────────────────────────────────────
