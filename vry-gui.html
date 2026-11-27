@@ -308,17 +308,33 @@ const RANK_CSS = [
 const PARTY_COLORS = ['#ff9f43','#b57bff','#2ee6c5','#ff6fb5','#f0f0f0'];
 
 const RANK_ICONS = {};
+const ICON_CACHE_KEY = 'vry.rankIcons.v1';
+const ICON_CACHE_TTL = 7 * 24 * 60 * 60 * 1000;
+
+// Returns true if a usable (possibly stale) cache was applied.
+function applyCachedIcons() {
+  try {
+    const c = JSON.parse(localStorage.getItem(ICON_CACHE_KEY) || 'null');
+    if (!c || !c.icons) return { applied:false, fresh:false };
+    Object.assign(RANK_ICONS, c.icons);
+    return { applied:true, fresh: Date.now() - c.savedAt < ICON_CACHE_TTL };
+  } catch (_) { return { applied:false, fresh:false }; }
+}
 
 async function loadRankIcons() {
+  const cache = applyCachedIcons();
+  if (cache.fresh) return;                 // recent enough, skip the network
   try {
     const res  = await fetch('https://valorant-api.com/v1/competitivetiers');
     const json = await res.json();
     const latest = json.data[json.data.length - 1];
-    latest.tiers.forEach(t => {
-      if (t.smallIcon) RANK_ICONS[t.tier] = t.smallIcon;
-    });
+    const icons = {};
+    latest.tiers.forEach(t => { if (t.smallIcon) icons[t.tier] = t.smallIcon; });
+    if (!Object.keys(icons).length) return;
+    Object.assign(RANK_ICONS, icons);
+    try { localStorage.setItem(ICON_CACHE_KEY, JSON.stringify({ savedAt: Date.now(), icons })); } catch (_) {}
   } catch (e) {
-    console.warn('Could not load rank icons from valorant-api.com:', e);
+    console.warn('Could not load rank icons from valorant-api.com:', e);  // keeps any cached icons
   }
 }
 
@@ -368,7 +384,8 @@ function rankBlock(rankIdx, subLine, subClass) {
   const url  = RANK_ICONS[idx];
 
   const iconHtml = url
-    ? `<img class="rank-icon" src="${esc(url)}" alt="${esc(name)}" loading="lazy">`
+    ? `<img class="rank-icon" src="${esc(url)}" alt="${esc(name)}" loading="lazy"
+          onerror="this.outerHTML='<div class=&quot;rank-icon-placeholder&quot;></div>'">`
     : `<div class="rank-icon-placeholder"></div>`;
 
   return `
@@ -641,6 +658,7 @@ function schedule() {
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
 (async () => {
+  applyCachedIcons();   // instant icons from last run
   render();
   connect();
   await loadRankIcons();
