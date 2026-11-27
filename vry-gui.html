@@ -172,6 +172,7 @@
   .agent-icon { width:100%; height:100%; object-fit:cover; object-position:top center; filter:brightness(.9); transition:filter .2s; }
   .player-card:hover .agent-icon { filter:brightness(1.05); }
   .agent-fallback { width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:var(--surface2); font-family:'Rajdhani',sans-serif; font-weight:700; font-size:18px; color:var(--text-dim); }
+  .agent-fallback.na { font-size:12px; letter-spacing:.06em; }
 
   /* Name cell */
   .name-cell { padding:0 12px; min-width:0; }
@@ -407,12 +408,14 @@ function renderCard(p, idx) {
 
   // Agent icon
   const agentImg  = p.agentImgLink;
-  const agentName = p.agent || STATE.agentNames[p.puuid] || '?';
+  const agentName = p.agent || STATE.agentNames[p.puuid] || '';   // empty in menus / before a pick
+  const fallback  = agentName ? esc(agentName[0]) : 'N/A';
+  const naClass   = agentName ? '' : ' na';
   const agentCell = agentImg
     ? `<img class="agent-icon" src="${esc(agentImg)}" alt="${esc(agentName)}"
           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-       <div class="agent-fallback" style="display:none">${esc(agentName[0]||'?')}</div>`
-    : `<div class="agent-fallback">${esc(agentName[0]||'?')}</div>`;
+       <div class="agent-fallback${naClass}" style="display:none">${fallback}</div>`
+    : `<div class="agent-fallback${naClass}">${fallback}</div>`;
 
   const partyDot = p.partyNumber > 0
     ? `<span class="party-dot" style="background:${PARTY_COLORS[(p.partyNumber-1)%PARTY_COLORS.length]}"></span>`
@@ -446,7 +449,7 @@ function renderCard(p, idx) {
 
       <div class="name-cell">
         <div class="player-name ${nameClass}">${partyDot}${esc(p.name||'Unknown')}</div>
-        <div class="agent-sub">${esc(agentName)}</div>
+        <div class="agent-sub">${esc(agentName || 'N/A')}</div>
       </div>
 
       ${currentRank}
