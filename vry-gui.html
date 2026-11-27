@@ -79,9 +79,10 @@
     background: var(--text-dim);
     transition: background 0.3s, box-shadow 0.3s;
   }
-  .status-dot.connected { background: var(--green); box-shadow: 0 0 7px var(--green); animation: pulse-dot 2s infinite; }
-  .status-dot.error     { background: var(--accent); box-shadow: 0 0 7px var(--accent); }
-  @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.45} }
+  .status-dot.connected { background: var(--green);  box-shadow: 0 0 6px var(--green); }
+  .status-dot.error     { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+  .status-label.connected    { color: var(--green); }
+  .status-label.disconnected { color: var(--accent); }
 
   .state-badge {
     padding: 4px 11px;
@@ -267,7 +268,7 @@
     <div class="logo-text">VRY<span>.</span></div>
   </div>
   <div class="header-right">
-    <div class="status-label">
+    <div class="status-label" id="statusLabel">
       <div class="status-dot" id="statusDot"></div>
       <span id="statusText">CONNECTING</span>
     </div>
@@ -565,8 +566,9 @@ function updateHeader(gs) {
 }
 
 function setConnected(ok) {
-  document.getElementById('statusDot').className  = 'status-dot '+(ok?'connected':'error');
-  document.getElementById('statusText').textContent = ok?'LIVE':'DISCONNECTED';
+  document.getElementById('statusDot').className   = 'status-dot '+(ok?'connected':'error');
+  document.getElementById('statusLabel').className = 'status-label '+(ok?'connected':'disconnected');
+  document.getElementById('statusText').textContent = ok?'CONNECTED':'DISCONNECTED';
 }
 
 // ── WebSocket handlers ────────────────────────────────────────────────────────
