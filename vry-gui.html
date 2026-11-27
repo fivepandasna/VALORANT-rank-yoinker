@@ -466,7 +466,7 @@ function renderTeam(players, teamId) {
   if (!players.length) return '';
   const isAlly = teamId === STATE.selfTeam;
   const cls    = isAlly ? 'blue' : 'red';
-  const label  = teamId === 'Blue' ? 'Attack' : 'Defense';
+  const label  = STATE.selfTeam ? (isAlly ? 'Your Team' : 'Enemy Team') : `${teamId} Team`;
   return `
     <div class="team-section">
       <div class="team-label ${cls}">${label}</div>
