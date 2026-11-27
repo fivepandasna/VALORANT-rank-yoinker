@@ -305,6 +305,10 @@ const RANK_CSS = [
   'rc-radiant'
 ];
 
+// In the menus the backend sends no agent. true: keep showing the agent each
+// person last played (name + icon). false: show N/A until they pick one.
+const KEEP_LAST_AGENT_IN_MENUS = true;
+
 // Deliberately avoids the ally blue, enemy red and self yellow used for names.
 const PARTY_COLORS = ['#ff9f43','#b57bff','#2ee6c5','#ff6fb5','#f0f0f0'];
 
@@ -611,11 +615,14 @@ function handleHeartbeat(data) {
   const next = {};
   Object.entries(data.players || {}).forEach(([puuid, p]) => {
     const prev = STATE.players[puuid] || {};
+    // No agent in the payload (menus): either keep the last one or clear it.
+    // Name and icon always travel together so they can't disagree.
+    const keepLast = KEEP_LAST_AGENT_IN_MENUS && data.state === 'MENUS' && !p.agent;
     next[puuid] = {
       ...prev, puuid,
       name:               p.name,
       team:               p.team,
-      agent:              p.agent,
+      agent:              keepLast ? prev.agent : p.agent,
       rank:               p.rank,
       peakRank:           p.peakRank,
       peakRankAct:        p.peakRankAct,
@@ -625,7 +632,8 @@ function handleHeartbeat(data) {
       kd:                 p.kd,
       level:              p.level,
       partyNumber:        p.partyNumber || 0,
-      agentImgLink:       p.agentImgLink || prev.agentImgLink,
+      agentImgLink:       keepLast ? prev.agentImgLink
+                          : (p.agentImgLink || (prev.agent === p.agent ? prev.agentImgLink : undefined)),
     };
   });
   STATE.players = next;
