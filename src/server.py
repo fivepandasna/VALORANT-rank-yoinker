@@ -1,43 +1,47 @@
+"""Local WebSocket server the GUI connects to (loopback only)."""
 import json
 import logging
-import os
+import threading
+
 from websocket_server import WebsocketServer
 
-from src.constants import version
+from src.constants import PORT
 
-logging.getLogger('websocket_server.websocket_server').disabled = True
+logging.getLogger("websocket_server.websocket_server").disabled = True
+log = logging.getLogger("vry.server")
 
-CONFIG_PATH = os.path.join(os.getenv('APPDATA'), 'vry', 'config.json')
 
 class Server:
-    def __init__(self, log, Error):
-        self.Error = Error
-        self.log = log
-        self.lastMessages = {}
+    def __init__(self, host="127.0.0.1", port=PORT):
+        self.host, self.port = host, port
+        self._server = None
+        self._last = {}
+        self._lock = threading.Lock()
 
-    def start_server(self):
-        try:
-            with open(CONFIG_PATH, "r") as conf:
-                port = json.load(conf)["port"]
-            self.server = WebsocketServer(host="0.0.0.0", port=port)
-            self.server.set_fn_new_client(self.handle_new_client)
-            self.server.run_forever(threaded=True)
-        except Exception as e:
-            self.Error.PortError(port)
+    def start(self):
+        self._server = WebsocketServer(host=self.host, port=self.port)
+        self.port = self._server.server_address[1]  # resolves port 0
+        self._server.set_fn_new_client(self._on_client)
+        self._server.run_forever(threaded=True)
+        log.info("GUI server listening on %s:%s", self.host, self.port)
 
-    def handle_new_client(self, client, server):
-        self.send_payload("version", {
-            "core": version
-        })
-        for key in self.lastMessages:
-            if key not in ["chat", "version"]:
-                self.send_message(self.lastMessages[key])
+    def stop(self):
+        if self._server:
+            self._server.shutdown_gracefully()
 
-    def send_message(self, message):
-        self.server.send_message_to_all(message)
+    def _on_client(self, client, server):
+        # A GUI that connects late still gets the current board.
+        with self._lock:
+            messages = list(self._last.values())
+        for message in messages:
+            server.send_message(client, message)
 
-    def send_payload(self, type, payload):
-        payload["type"] = type
-        msg_str = json.dumps(payload)
-        self.lastMessages[type] = msg_str
-        self.server.send_message_to_all(msg_str)
+    def send_payload(self, kind, payload):
+        message = json.dumps({**payload, "type": kind})
+        with self._lock:
+            self._last[kind] = message
+        if self._server:
+            try:
+                self._server.send_message_to_all(message)
+            except Exception:
+                log.exception("failed to broadcast %s", kind)

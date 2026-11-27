@@ -1,63 +1,51 @@
 # launcher.py
 import os
+
 os.environ["PYTHONIOENCODING"] = "utf-8"
 os.environ["PYTHONUTF8"] = "1"
 
 import sys
 
-VRY_APPDATA = os.path.join(os.getenv('APPDATA'), 'vry')
+VRY_APPDATA = os.path.join(os.getenv("APPDATA"), "vry")
 os.makedirs(VRY_APPDATA, exist_ok=True)
 
-if getattr(sys, 'frozen', False):
-    log_file = open(os.path.join(VRY_APPDATA, 'output.log'), 'w', encoding='utf-8')
+if getattr(sys, "frozen", False):
+    log_file = open(os.path.join(VRY_APPDATA, "output.log"), "w", encoding="utf-8")
     sys.stdout = log_file
     sys.stderr = log_file
 
 import threading
-import time
+
 import webview
+
 
 def run_backend():
     try:
         import main
-    except SystemExit:
-        pass
+
+        main.run()
     except Exception:
         import traceback
-        with open(os.path.join(VRY_APPDATA, 'launcher_error.txt'), "w") as f:
+
+        with open(os.path.join(VRY_APPDATA, "launcher_error.txt"), "w") as f:
             f.write(traceback.format_exc())
 
-def wait_for_backend(timeout=30):
-    import socket
-    deadline = time.time() + timeout
-    while time.time() < deadline:
-        try:
-            with socket.create_connection(("127.0.0.1", 1100), timeout=1):
-                return True
-        except OSError:
-            time.sleep(0.5)
-    return False
 
 if __name__ == "__main__":
-    backend_thread = threading.Thread(target=run_backend, daemon=True)
-    backend_thread.start()
+    threading.Thread(target=run_backend, daemon=True).start()
 
-    if getattr(sys, 'frozen', False):
-        base = sys._MEIPASS
-    else:
-        base = os.path.dirname(os.path.abspath(__file__))
-
+    base = sys._MEIPASS if getattr(sys, "frozen", False) else os.path.dirname(os.path.abspath(__file__))
     html_path = os.path.join(base, "vry-gui.html")
 
-    window = webview.create_window(
+    webview.create_window(
         title="VALORANT rank yoinker",
         url=f"file:///{html_path}",
         width=1280,
         height=800,
         resizable=True,
         min_size=(900, 600),
-        background_color='#0a0b0f',
+        background_color="#0a0b0f",
     )
 
-    webview.start(gui='edgechromium')
+    webview.start(gui="edgechromium")
     os._exit(0)

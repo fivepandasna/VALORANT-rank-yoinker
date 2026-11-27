@@ -392,7 +392,7 @@ function renderCard(p, idx) {
   const nameClass = isSelf ? 'self-color' : (team ? (isAlly ? 'blue' : 'red') : '');
 
   // Agent icon
-  const agentImg  = STATE.agentImages[p.puuid] || p.agentImgLink;
+  const agentImg  = p.agentImgLink;
   const agentName = p.agent || STATE.agentNames[p.puuid] || '?';
   const agentCell = agentImg
     ? `<img class="agent-icon" src="${esc(agentImg)}" alt="${esc(agentName)}"
@@ -498,7 +498,6 @@ const STATE = {
   selfPuuid:   null,
   selfTeam:    null,
   map:         null,
-  agentImages: {},
   agentNames:  {},
 };
 
@@ -515,7 +514,7 @@ function render() {
         </svg>
         <div class="empty-title">Awaiting Match</div>
         <div class="empty-sub">
-          Connecting to vRY on <span class="ws-url">ws://localhost:1100</span><br>
+          Connecting to vRY on <span class="ws-url">ws://127.0.0.1:1100</span><br>
           Make sure VALORANT is running.
           <div class="connecting"><span></span><span></span><span></span></div>
         </div>
@@ -602,24 +601,11 @@ function handleHeartbeat(data) {
   render();
 }
 
-function handleMatchLoadout(data) {
-  if (!data?.Players) return;
-  Object.entries(data.Players).forEach(([puuid, pd]) => {
-    if (pd.Agent) {
-      STATE.agentImages[puuid] = pd.Agent;
-      // Only update agentImgLink if the player already exists from a heartbeat
-      if (STATE.players[puuid]) STATE.players[puuid].agentImgLink = pd.Agent;
-    }
-  });
-  // Only re-render if heartbeat has already populated real player data
-  if (STATE.gameState) render();
-}
-
 // ── WebSocket connection ──────────────────────────────────────────────────────
 let ws, reconnectTimer, reconnectDelay = 2000;
 
 function connect() {
-  try { ws = new WebSocket('ws://localhost:1100'); }
+  try { ws = new WebSocket('ws://127.0.0.1:1100'); }
   catch(e) { schedule(); return; }
 
   ws.onopen  = () => { setConnected(true); reconnectDelay=2000; clearTimeout(reconnectTimer); };
@@ -629,7 +615,6 @@ function connect() {
     try {
       const msg = JSON.parse(evt.data);
       if (msg.type==='heartbeat')    handleHeartbeat(msg);
-      if (msg.type==='matchLoadout') handleMatchLoadout(msg);
     } catch(_) {}
   };
 }
