@@ -1,48 +1,86 @@
+
 name: Build
+
 env:
   PYTHON_VERSION: '3.11'
+
 on:
   push:
+    branches:
+      - '**'
     tags:
       - '*'
   workflow_dispatch:
     inputs:
       ref_name:
-        description: 'Version/tag name (e.g. v1.0.0)'
-        required: true
+        description: 'Optional version override'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: windows-latest
+
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python ${{ env.PYTHON_VERSION }}
+
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
-          cache-dependency-path: 'requirements.txt'
+          cache-dependency-path: requirements.txt
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-      - name: Install PyInstaller
-        run: pip install pyinstaller
+          pip install pyinstaller
+
       - name: Install Inno Setup
         run: choco install innosetup --yes
+
+      - name: Resolve version
+        id: version
+        shell: pwsh
+        run: |
+          if ("${{ inputs.ref_name }}" -ne "") {
+            $ver = "${{ inputs.ref_name }}"
+          } elseif ("${{ github.ref_type }}" -eq "tag") {
+            $ver = "${{ github.ref_name }}"
+          } else {
+            $ver = "0.0.${{ github.run_number }}"
+          }
+          echo "tag=$ver" >> $env:GITHUB_OUTPUT
+
       - name: Build executable
         run: |
           python -m PyInstaller --noconsole --onedir --name "vry" --add-data "vry-gui.html;." --add-data "assets;assets" --add-data "src;src" --icon=assets/Logo.ico --collect-all webview --collect-all websocket_server launcher.py
-      - name: Resolve version
-        id: version
-        run: |
-          $ver = if ("${{ github.event.inputs.ref_name }}" -ne "") { "${{ github.event.inputs.ref_name }}" } else { "${{ github.ref_name }}" }
-          echo "tag=$ver" >> $env:GITHUB_OUTPUT
-      - name: Compile Inno Setup installer
+
+      - name: Compile installer
         run: iscc installer.iss /DMyAppVersion=${{ steps.version.outputs.tag }}
+
       - name: Zip portable build
         run: Compress-Archive -Path dist\vry\* -DestinationPath dist\vry-${{ steps.version.outputs.tag }}-portable.zip
+
+      # Upload artifacts for BOTH commits and tags
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: vry-${{ steps.version.outputs.tag }}
+          path: |
+            dist/vry-${{ steps.version.outputs.tag }}-setup.exe
+            dist/vry-${{ steps.version.outputs.tag }}-portable.zip
+          if-no-files-found: error
+          retention-days: 30
+
+      # Only create releases for pushed tags
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        if: github.event_name == 'push' && github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             dist/vry-${{ steps.version.outputs.tag }}-setup.exe
