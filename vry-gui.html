@@ -489,6 +489,8 @@ function renderHeaders() {
 
 // ── App state ─────────────────────────────────────────────────────────────────
 let CONN = 'connecting';        // 'connecting' | 'connected' | 'disconnected'
+let lastRenderSig = null;       // skip re-rendering identical boards (the idle
+                                // backend resends an empty board every 5s)
 
 const STATE = {
   gameState:   null,
@@ -502,6 +504,11 @@ const STATE = {
 function render() {
   const app  = document.getElementById('app');
   const list = Object.values(STATE.players);
+
+  const sig = JSON.stringify([CONN, STATE.gameState, STATE.selfPuuid, STATE.selfTeam,
+                              STATE.map, STATE.players, Object.keys(RANK_ICONS).length]);
+  if (sig === lastRenderSig) return;
+  lastRenderSig = sig;
 
   if (!STATE.gameState || !list.length) {
     const EMPTY = {
